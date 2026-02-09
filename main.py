@@ -5,7 +5,7 @@ from piece import *
 from utilities import *
 from settings import settings
 from button import Button
-from widget import Slider
+from widget import Slider, CheckBox
 
 
 class Game:
@@ -32,6 +32,8 @@ class Game:
                 Button(settings.get_window_width() // 2 - 75, settings.WINDOW_SIZE - 100, 150, 50, (70, 130, 180),
                        (100, 149, 237), (30, 60, 100),
                        "Next", lambda a="main": settings.switch_scene(a)),
+                CheckBox(settings.get_window_width() // 2 - 75, settings.WINDOW_SIZE / 8, 50, 25, False, None,
+                         "Play against Computer")
             ],
             "main": [
                 Button(900, 500, 150, 50, (70, 130, 180), (100, 149, 237),

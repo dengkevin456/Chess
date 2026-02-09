@@ -1,6 +1,7 @@
 import pygame
 from abc import ABC, abstractmethod
-from utilities import clamp
+from utilities import clamp, draw_rounded_rect
+
 
 class Widget(ABC):
     def __init__(self, x: int, y: int, w: int, h: int):
@@ -17,6 +18,12 @@ class Widget(ABC):
                     custom_font: pygame.Font=None):
         text_surf = self.font.render(label, False, color) if not custom_font else custom_font.render(label, False, color)
         text_rect = text_surf.get_rect(center=position)
+        surface.blit(text_surf, text_rect)
+
+    def render_text_top(self, surface: pygame.Surface, position: tuple, label: str, color: tuple=(255, 255, 255),
+                        custom_font: pygame.Font=None):
+        text_surf = self.font.render(label, False, color) if not custom_font else custom_font.render(label, False, color)
+        text_rect = text_surf.get_rect(center=(position[0] + text_surf.get_width() / 2, position[1] + text_surf.get_height() / 2))
         surface.blit(text_surf, text_rect)
 
     @abstractmethod
@@ -36,6 +43,7 @@ class CheckBox(Widget):
         self.label = label
         self.hovered = False
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
+        self.knob_radius = 10
 
     def handle_event(self, event):
         if not self.enabled:
@@ -51,7 +59,16 @@ class CheckBox(Widget):
                     self.on_toggle(self.checked)
 
     def draw(self, surface: pygame.Surface):
-        pass
+        if not self.visible:
+            return
+        color = (0, 255, 0) if self.checked else (100, 100, 100)
+        if self.hovered:
+            color = (160, 160, 160)
+        draw_rounded_rect(surface, self.rect, self.knob_radius, color, 10)
+        knob_x = self.rect.right - self.knob_radius if self.checked else self.rect.left + self.knob_radius
+        pygame.draw.circle(surface, (130, 130, 130), (knob_x, self.rect.centery), self.knob_radius)
+        if self.label:
+            self.render_text_top(surface, (self.x + self.w + 10, self.y), self.label)
 
 
 class Slider(Widget):
