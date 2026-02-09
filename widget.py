@@ -1,6 +1,7 @@
 import pygame
 from abc import ABC, abstractmethod
 from utilities import clamp, draw_rounded_rect
+from settings import settings
 
 
 class Widget(ABC):
@@ -14,14 +15,15 @@ class Widget(ABC):
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
         self.font = pygame.font.SysFont("Arial", 20)
 
+
     def render_text(self, surface: pygame.Surface, position: tuple, label: str, color: tuple=(255, 255, 255),
-                    custom_font: pygame.Font=None):
+                    custom_font: pygame.font.Font=None):
         text_surf = self.font.render(label, False, color) if not custom_font else custom_font.render(label, False, color)
         text_rect = text_surf.get_rect(center=position)
         surface.blit(text_surf, text_rect)
 
     def render_text_top(self, surface: pygame.Surface, position: tuple, label: str, color: tuple=(255, 255, 255),
-                        custom_font: pygame.Font=None):
+                        custom_font: pygame.font.Font=None):
         text_surf = self.font.render(label, False, color) if not custom_font else custom_font.render(label, False, color)
         text_rect = text_surf.get_rect(center=(position[0] + text_surf.get_width() / 2, position[1] + text_surf.get_height() / 2))
         surface.blit(text_surf, text_rect)

@@ -13,7 +13,12 @@ class Settings:
         self.font = pygame.font.SysFont("Arial", 20)
         self.clicked = False
         self.scene = "main_menu"
-        self.screen = pygame.display.set_mode((self.WINDOW_SIZE * 1.5, self.WINDOW_SIZE))
+        self.internal_window = pygame.Surface((self.WINDOW_SIZE * 1.5,
+                                               self.WINDOW_SIZE))
+        self.screen = pygame.display.set_mode((600 * 1.5, 600),
+                                              pygame.RESIZABLE)
+
+
         self.current_cursor = pygame.SYSTEM_CURSOR_ARROW
         self.clock = pygame.time.Clock()
         self.fps = 60
@@ -36,10 +41,10 @@ class Settings:
 
         # Add more stuff later
     def get_window_width(self):
-        return self.screen.get_width()
+        return self.internal_window.get_width()
 
     def get_window_height(self):
-        return self.screen.get_height()
+        return self.internal_window.get_height()
 
     def start_move_animation(self, board, src: Tuple[int, int], target: Tuple[int, int], undo_append=True):
         self.animating = True
@@ -70,7 +75,7 @@ class Settings:
         else:
             target_center = center_point
         text_rect = text_surf.get_rect(center=target_center)
-        self.screen.blit(text_surf, text_rect)
+        self.internal_window.blit(text_surf, text_rect)
 
     def switch_scene(self, scene: str=None):
         if not scene:

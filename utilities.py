@@ -27,6 +27,23 @@ def draw_rounded_rect(surface, rect, radius, color, scale=10):
     smooth = pygame.transform.smoothscale(temp, (w, h))
     surface.blit(smooth, (x, y))
 
+def get_mouse_pos(surface: pygame.Surface, internal_surface: pygame.Surface):
+    real_mouse_pos = pygame.mouse.get_pos()
+    width_ratio = internal_surface.get_width() / surface.get_width()
+    height_ratio = internal_surface.get_height() / surface.get_height()
+    return (
+        real_mouse_pos[0] * width_ratio,
+        real_mouse_pos[1] * height_ratio
+    )
+
+def update_mouse_pos(pos, surface: pygame.Surface,
+                     internal_surface: pygame.Surface):
+    width_ratio = internal_surface.get_width() / surface.get_width()
+    height_ratio = internal_surface.get_height() / surface.get_height()
+    return (
+        int(pos[0] * width_ratio),
+        int(pos[1] * height_ratio)
+    )
 
 def draw_image_outline(surface: pygame.Surface, image: pygame.Surface, pos, color = "black", thickness = 1) -> None:
     mask = pygame.mask.from_surface(image)

@@ -12,7 +12,7 @@ class Game:
     WINDOW_SIZE = 800
     def __init__(self):
         pygame.init()
-        self.screen = settings.screen
+        self.screen = settings.internal_window
         pygame.display.set_caption("Chess")
         self.clock = settings.clock
         self.running = True
@@ -62,7 +62,9 @@ class Game:
             if settings.scene == "main":
                 for p in self.board.all_pieces(None):
                     p.reset_state()
-                mx, my = event.pos
+                mx, my = update_mouse_pos(event.pos,
+                                          settings.screen, settings.internal_window)
+                print(mx, my)
                 row, col = my // square, mx // square
                 row, col = self.board.board_to_screen(row, col)
                 clicked = (row, col)
@@ -86,6 +88,14 @@ class Game:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 self.board.is_checkmate()
+
+        if event.type == pygame.VIDEORESIZE:
+            settings.WINDOW_SIZE = event.size[0]
+            settings.screen = pygame.display.set_mode(
+                (settings.screen.get_width(),
+                 settings.screen.get_height()),
+                pygame.RESIZABLE
+            )
 
         # All widget events reference
         if self.widgets.get(settings.scene):
@@ -146,7 +156,7 @@ class Game:
     def main_menu(self) -> None:
         self.screen.fill((0, 150, 225))
         settings.draw_center_text("CHESS", (255, 255, 255), (settings.get_window_width() // 2,
-                                                             settings.get_window_height() // 6), 140)
+                                                             100), 140)
         self.draw_widget("main_menu")
 
     def configuration_menu(self):
@@ -239,6 +249,11 @@ class Game:
 
             for event in pygame.event.get():
                 self.handle_event(event)
+            scaled_win = pygame.transform.scale(
+                settings.internal_window,
+                (settings.screen.get_width(), settings.screen.get_height())
+            )
+            settings.screen.blit(scaled_win, (0, 0))
             pygame.display.update()
 
 

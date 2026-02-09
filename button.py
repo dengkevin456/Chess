@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pygame
 import pygame.gfxdraw
-from utilities import draw_rounded_rect
+from utilities import draw_rounded_rect, get_mouse_pos
 from settings import settings
 from widget import Widget
 
@@ -35,7 +35,7 @@ class Button(Widget):
         if not self.visible:
             return
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = get_mouse_pos(settings.screen, settings.internal_window)
         self.current_color = self.color
         if self.rect.collidepoint(mouse_pos):
             if self.enabled:
