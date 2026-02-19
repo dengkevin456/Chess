@@ -21,7 +21,10 @@ class Game:
         self.two_players_group = GroupWidget(
                     [
                         CheckBox(settings.get_window_width() // 2 - 75, 200, 50, 25, False, "Rotate board?",
-                                 None),
+                                 on_toggle=None),
+
+                        CheckBox(settings.get_window_width() // 2 - 75, 250, 50, 25, False, "Allow undo?",
+                                 on_toggle=None)
                     ]
             )
         self.ai_group = GroupWidget(

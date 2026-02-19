@@ -10,7 +10,8 @@ def count_lines(filename):
         line_count = sum(1 for line in f)
     return line_count
 
-only_files = filter(lambda x: os.path.isfile(os.path.join(directory_path, x)), os.listdir(directory_path))
+only_files = filter(lambda x: os.path.isfile(os.path.join(directory_path, x)) and
+                              os.path.splitext(x)[1].startswith(".py"), os.listdir(directory_path))
 
 a = 0
 for f in only_files:
