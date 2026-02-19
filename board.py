@@ -300,6 +300,8 @@ class Board:
 
     # Undo move
     def undo_move(self):
+        if settings.animating:
+            return
         if len(self.move_log) == 0:
             self.last_move = None
             return

@@ -10,12 +10,13 @@ class Settings:
         pygame.init()
         pygame.font.init()
         self.WINDOW_SIZE = 800
+        self.actual_window_size = 800 # Change this for actual size
         self.font = pygame.font.SysFont("Arial", 20)
         self.clicked = False
         self.scene = "main_menu"
         self.internal_window = pygame.Surface((self.WINDOW_SIZE * 1.5,
                                                self.WINDOW_SIZE))
-        self.screen = pygame.display.set_mode((600 * 1.5, 600),
+        self.screen = pygame.display.set_mode((self.actual_window_size * 1.5, self.actual_window_size),
                                               pygame.RESIZABLE)
 
 

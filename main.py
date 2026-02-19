@@ -64,7 +64,6 @@ class Game:
                     p.reset_state()
                 mx, my = update_mouse_pos(event.pos,
                                           settings.screen, settings.internal_window)
-                print(mx, my)
                 row, col = my // square, mx // square
                 row, col = self.board.board_to_screen(row, col)
                 clicked = (row, col)
