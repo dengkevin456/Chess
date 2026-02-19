@@ -63,7 +63,7 @@ class GroupWidget(Widget):
             w.draw(surface)
 
 class CheckBox(Widget):
-    def __init__(self, x, y, w, h, checked=False, on_toggle=None, label=None):
+    def __init__(self, x, y, w, h, checked=False, label=None, on_toggle=None):
         super().__init__(x, y, w, h)
         self.checked = checked
         self.on_toggle = on_toggle

@@ -1,5 +1,5 @@
 from typing import Tuple
-
+from bindings import BoolState
 import pygame
 import pygame.gfxdraw
 
@@ -26,7 +26,7 @@ class Settings:
         self.clock = pygame.time.Clock()
         self.fps = 60
         # Configurations
-        self.ai_playing = False
+        self.ai_playing = BoolState(False)
         self.ai_difficulty = 0
         # Pawn promotion stuff
         self.promoting_pawn_pos = None

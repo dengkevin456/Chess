@@ -17,7 +17,24 @@ class Game:
         self.clock = settings.clock
         self.running = True
         self.board = Board()
+        # Group widgets
+        self.two_players_group = GroupWidget(
+                    [
+                        CheckBox(settings.get_window_width() // 2 - 75, 200, 50, 25, False, "Rotate board?",
+                                 None),
+                    ]
+            )
+        self.ai_group = GroupWidget(
+            [
+                Slider(settings.get_window_width() // 3, 250, 300, 20, "AI strength", 0, 10, 1,
+                       None),
+            ]
+        )
+        # Binding widgets
+        settings.ai_playing.bind(self.two_players_group.set_visible)
+        settings.ai_playing.bind(self.ai_group.set_visible, invert=True)
 
+        # The widgets that will be displayed
         self.widgets = {
             "main_menu": [
                 Button(settings.get_window_width() // 3, 400, 300, 100, (70, 130, 180),
@@ -27,19 +44,13 @@ class Game:
             "configuration": [
                 Button(50, settings.WINDOW_SIZE - 100, 150, 50, (70, 130, 180), (100, 149, 237), (30, 60, 100),
                        "Back", lambda a="main_menu": settings.switch_scene(a)),
-                Slider(settings.get_window_width() // 3, 600, 300, 20, "AI strength", 0, 10, 1,
-                       None),
                 Button(settings.get_window_width() // 2 - 75, settings.WINDOW_SIZE - 100, 150, 50, (70, 130, 180),
                        (100, 149, 237), (30, 60, 100),
                        "Next", lambda a="main": settings.switch_scene(a)),
-                CheckBox(settings.get_window_width() // 2 - 75, 150, 50, 25, False, None,
-                         "Play against Computer/Two Players"),
-                GroupWidget(
-                    [
-                        CheckBox(settings.get_window_width() // 2 - 75, 200, 50, 25, False, None,
-                                 "Rotate board?"),
-                    ]
-                )
+                CheckBox(settings.get_window_width() // 2 - 75, 150, 50, 25, False,
+                "Two Players? (If not, play against computer)", on_toggle=settings.ai_playing.set),
+                self.two_players_group,
+                self.ai_group
             ],
             "main": [
                 Button(900, 500, 150, 50, (70, 130, 180), (100, 149, 237),

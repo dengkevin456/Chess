@@ -3,6 +3,13 @@ import pygame.gfxdraw
 from typing import Tuple
 import os
 
+def debug(key, statement):
+    if statement is None:
+        return
+    k = pygame.key.get_pressed()
+    if k[key]:
+        print(f"INFO >>> {statement}")
+
 def draw_rounded_rect(surface, rect, radius, color, scale=10):
     x, y, w, h = rect
     sw, sh = w * scale, h * scale
