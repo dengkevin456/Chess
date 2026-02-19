@@ -5,7 +5,7 @@ from piece import *
 from utilities import *
 from settings import settings
 from button import Button
-from widget import Slider, CheckBox
+from widget import Slider, CheckBox, GroupWidget
 
 
 class Game:
@@ -32,8 +32,14 @@ class Game:
                 Button(settings.get_window_width() // 2 - 75, settings.WINDOW_SIZE - 100, 150, 50, (70, 130, 180),
                        (100, 149, 237), (30, 60, 100),
                        "Next", lambda a="main": settings.switch_scene(a)),
-                CheckBox(settings.get_window_width() // 2 - 75, settings.WINDOW_SIZE / 8, 50, 25, False, None,
-                         "Play against Computer")
+                CheckBox(settings.get_window_width() // 2 - 75, 150, 50, 25, False, None,
+                         "Play against Computer/Two Players"),
+                GroupWidget(
+                    [
+                        CheckBox(settings.get_window_width() // 2 - 75, 200, 50, 25, False, None,
+                                 "Rotate board?"),
+                    ]
+                )
             ],
             "main": [
                 Button(900, 500, 150, 50, (70, 130, 180), (100, 149, 237),
@@ -76,7 +82,6 @@ class Game:
                 else:
                     if hasattr(self, "selected") and clicked in getattr(self, "valid_moves",
                                                                         []) and not settings.is_promoting():
-                        # self.board.move_piece(self.selected, clicked)
                         settings.start_move_animation(self.board, self.selected, clicked, True)
 
                     self.selected = None

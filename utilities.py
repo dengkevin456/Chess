@@ -36,6 +36,18 @@ def get_mouse_pos(surface: pygame.Surface, internal_surface: pygame.Surface):
         real_mouse_pos[1] * height_ratio
     )
 
+def get_mouse_pos_from_event(surface: pygame.Surface, internal_surface: pygame.Surface, event):
+    if not event:
+        return 0, 0
+    real_mouse_pos = event.pos
+    width_ratio = internal_surface.get_width() / surface.get_width()
+    height_ratio = internal_surface.get_height() / surface.get_height()
+    return (
+        real_mouse_pos[0] * width_ratio,
+        real_mouse_pos[1] * height_ratio
+    )
+
+
 def update_mouse_pos(pos, surface: pygame.Surface,
                      internal_surface: pygame.Surface):
     width_ratio = internal_surface.get_width() / surface.get_width()

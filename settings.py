@@ -11,6 +11,8 @@ class Settings:
         pygame.font.init()
         self.WINDOW_SIZE = 800
         self.actual_window_size = 800 # Change this for actual size
+        self.MIN_WINDOW_WIDTH = 400
+        self.MIN_WINDOW_HEIGHT = 400
         self.font = pygame.font.SysFont("Arial", 20)
         self.clicked = False
         self.scene = "main_menu"

@@ -1,6 +1,6 @@
 import pygame
 from abc import ABC, abstractmethod
-from utilities import clamp, draw_rounded_rect
+from utilities import clamp, draw_rounded_rect, get_mouse_pos_from_event
 from settings import settings
 
 
@@ -14,7 +14,6 @@ class Widget(ABC):
         self.visible = True
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
         self.font = pygame.font.SysFont("Arial", 20)
-
 
     def render_text(self, surface: pygame.Surface, position: tuple, label: str, color: tuple=(255, 255, 255),
                     custom_font: pygame.font.Font=None):
@@ -36,6 +35,32 @@ class Widget(ABC):
         pass
 
 
+class GroupWidget(Widget):
+    def __init__(self, widgets=None):
+        super().__init__(0, 0, 0, 0)
+        self.widgets = widgets if widgets else []
+
+    def set_enabled(self, enabled: bool) -> None:
+        for widget in self.widgets:
+            widget.enabled = enabled
+
+    def set_visible(self, visible: bool) -> None:
+        self.visible = visible
+        for w in self.widgets:
+            w.visible = visible
+
+    def handle_event(self, event):
+        if not self.enabled or not self.visible:
+            return
+        for w in self.widgets:
+            if w.enabled and w.visible:
+                w.handle_event(event)
+
+    def draw(self, surface: pygame.Surface):
+        if not self.visible:
+            return
+        for w in self.widgets:
+            w.draw(surface)
 
 class CheckBox(Widget):
     def __init__(self, x, y, w, h, checked=False, on_toggle=None, label=None):
@@ -50,12 +75,13 @@ class CheckBox(Widget):
     def handle_event(self, event):
         if not self.enabled:
             return
-
         if event.type == pygame.MOUSEMOTION:
-            self.hovered = self.rect.collidepoint(event.pos)
+            pos = get_mouse_pos_from_event(settings.screen, settings.internal_window, event)
+            self.hovered = self.rect.collidepoint(pos)
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.rect.collidepoint(event.pos):
+            pos = get_mouse_pos_from_event(settings.screen, settings.internal_window, event)
+            if self.rect.collidepoint(pos):
                 self.checked = not self.checked
                 if self.on_toggle:
                     self.on_toggle(self.checked)
@@ -104,14 +130,16 @@ class Slider(Widget):
             return
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.rect.collidepoint(event.pos):
+            pos = get_mouse_pos_from_event(settings.screen, settings.internal_window, event)
+            if self.rect.collidepoint(pos):
                 self.dragging = True
 
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.dragging = False
 
         elif event.type == pygame.MOUSEMOTION and self.dragging:
-            new_value = self.x_to_value(event.pos[0])
+            pos = get_mouse_pos_from_event(settings.screen, settings.internal_window, event)
+            new_value = self.x_to_value(pos[0])
             if new_value != self.value:
                 self.value = new_value
                 if self.on_change:
