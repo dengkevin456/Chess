@@ -29,8 +29,8 @@ class Game:
             )
         self.ai_group = GroupWidget(
             [
-                Slider(settings.get_window_width() // 3, 250, 300, 20, "AI strength", 0, 10, 1,
-                       None),
+                Slider(settings.get_window_width() // 3, 250, 300, 20, "AI strength", 1, 10, 1,
+                       lambda v: settings.set_ai_difficulty(v)),
             ]
         )
         # Binding widgets
@@ -175,7 +175,7 @@ class Game:
         if not settings.ai_playing.value:
             self.board.toggle_rotation()
         else:
-            self.board.make_random_ai_move(color)
+            self.board.make_ai_move(color, settings.ai_difficulty)
 
     # Draw widget helper
     def draw_widget(self, scene: str):
@@ -235,12 +235,14 @@ class Game:
                     # If two players, rotate board
                     if not settings.ai_playing.value:
                         self.board.toggle_rotation()
-                    else:
-                        settings.ai_thinking = True
 
         # AI thinking phase before making a move
-        if settings.ai_thinking and settings.ai_playing.value:
-            self.board.make_random_ai_move(self.board.get_opposite_color())
+        if settings.ai_playing.value:
+            if not settings.animating and settings.ai_thinking and not settings.ai_ready:
+                settings.ai_ready = True
+            elif settings.ai_ready:
+                self.board.make_ai_move(self.board.get_opposite_color(), strength=settings.ai_difficulty)
+                settings.ai_thinking = False
         # handle undo queues
         self.handle_undo_queues()
         # draw pieces

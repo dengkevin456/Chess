@@ -94,7 +94,8 @@ class Pawn(Piece):
             diag = (r + dir, c + dc)
             if board.in_bounds(diag):
                 piece = board.get_piece(diag)
-                if piece is None or piece.color == self.color:
+                if piece is None or piece.color == self.color or (piece.color != self.color and
+                                                                  isinstance(piece, King)):
                     moves.append(diag)
         return moves
 

@@ -160,11 +160,33 @@ class Board:
                 self.move_piece(src, target)
                 self.timer = random.randint(100, 200)
                 settings.ai_thinking = False
+                settings.ai_ready = False
             else:
                 self.timer -= 2
         except ValueError as e:
             self.timer = self.initial_time
             print(f"Value error: {e}")
+
+    def make_ai_move(self, color, strength=0):
+        match strength:
+            case 2:
+                if self.to_move != color:
+                    return
+                best = self.find_best_move(2)
+                if best:
+                    src, dst = best
+                    self.move_piece(src, dst)
+                settings.ai_ready = False
+            case 3:
+                if self.to_move != color:
+                    return
+                best = self.find_best_move(3)
+                if best:
+                    src, dst = best
+                    self.move_piece(src, dst)
+                settings.ai_ready = False
+            case _:
+                self.make_random_ai_move(color)
 
     def move_piece(self, source: Position, dest: Position, undo=True) -> None:
         # Move piece from source to target
@@ -202,6 +224,8 @@ class Board:
         piece.move_to(self.grid, target=dest)
         self.switch_color()
         self.update_attack_maps()
+        if self.to_move == self.get_opposite_color():
+            settings.ai_thinking = True
 
 
     def is_pawn_promotion(self, pos: Position):
@@ -287,17 +311,19 @@ class Board:
             King: 0
         }
         score = 0
-        for r in range(8):
-            for c in range(8):
-                piece = self.grid[r][c]
+
+        for row in self.grid:
+            for piece in row:
                 if not piece:
                     continue
-                sign = 1 if piece.color == "white" else -1
-                value = sign * values[type(piece)]
+
+                value = values[type(piece)]
+
                 if piece.color == "white":
                     score += value
                 else:
                     score -= value
+
         return score
 
     def is_checkmate(self):
@@ -330,5 +356,70 @@ class Board:
             # TODO: implement castling undo
             pass
 
+    def undo_last_simulated_move(self):
+        if not self.move_log:
+            return
+        move = self.move_log.pop()
+        piece = move.piece
+
+        self.grid[move.src[0]][move.src[1]] = piece
+        self.grid[move.dst[0]][move.dst[1]] = move.captured
+        piece.pos = move.src
+        self.switch_color()
+        self.update_attack_maps()
+
+    def minimax(self, depth: int, alpha, beta):
+        if depth == 0 or self.is_checkmate() or self.is_stalemate():
+            return self.evaluate_material()
+        moves = self.all_legal_moves(self.to_move)
+        if self.to_move == "white":
+            max_eval = float("-inf")
+
+            for src, dst in moves:
+                self.move_piece(src, dst)
+                eval = self.minimax(depth - 1, alpha, beta)
+                self.undo_last_simulated_move()
+                max_eval = max(max_eval, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+
+            return max_eval
+
+        else:
+            min_eval = float("inf")
+
+            for src, dst in moves:
+                self.move_piece(src, dst)
+                eval = self.minimax(depth - 1, alpha, beta)
+                self.undo_last_simulated_move()
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+
+            return min_eval
+
+
+    def find_best_move(self, depth):
+        best_move = None
+        maximizing = (self.to_move == "white")
+        best_eval = float("-inf") if maximizing else float("inf")
+        moves = self.all_legal_moves(self.to_move)
+        for src, dst in moves:
+
+            self.move_piece(src, dst)
+            eval = self.minimax(depth - 1, float("-inf"), float("inf"))
+            self.undo_last_simulated_move()
+
+            if maximizing and eval > best_eval:
+                best_eval = eval
+                best_move = (src, dst)
+
+            elif not maximizing and eval < best_eval:
+                best_eval = eval
+                best_move = (src, dst)
+
+        return best_move
 
 

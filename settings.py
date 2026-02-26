@@ -29,6 +29,7 @@ class Settings:
         self.ai_playing = BoolState(False)
         self.ai_difficulty = 0
         self.ai_thinking = True
+        self.ai_ready = False
         # Pawn promotion stuff
         self.promoting_pawn_pos = None
         self.promotion_color = None
@@ -43,6 +44,9 @@ class Settings:
         self.anim_duration = 0.15
         self.undo_append = True
 
+    # Some setters
+    def set_ai_difficulty(self, value=1):
+        self.ai_difficulty = value
         # Add more stuff later
     def get_window_width(self):
         return self.internal_window.get_width()
