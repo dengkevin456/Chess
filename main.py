@@ -243,6 +243,8 @@ class Game:
             elif settings.ai_ready:
                 self.board.make_ai_move(self.board.get_opposite_color(), strength=settings.ai_difficulty)
                 settings.ai_thinking = False
+                if settings.ai_difficulty > 1:
+                    settings.ai_ready = False
         # handle undo queues
         self.handle_undo_queues()
         # draw pieces

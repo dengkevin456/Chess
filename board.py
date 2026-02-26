@@ -176,7 +176,6 @@ class Board:
                 if best:
                     src, dst = best
                     self.move_piece(src, dst)
-                settings.ai_ready = False
             case 3:
                 if self.to_move != color:
                     return
@@ -184,7 +183,6 @@ class Board:
                 if best:
                     src, dst = best
                     self.move_piece(src, dst)
-                settings.ai_ready = False
             case _:
                 self.make_random_ai_move(color)
 
