@@ -28,6 +28,7 @@ class Settings:
         # Configurations
         self.ai_playing = BoolState(False)
         self.ai_difficulty = 0
+        self.ai_thinking = True
         # Pawn promotion stuff
         self.promoting_pawn_pos = None
         self.promotion_color = None

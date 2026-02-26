@@ -50,10 +50,11 @@ class Board:
         self.en_passant_target = None
         self.last_move = None
         self.setup()
-
+        self.undo_queue = 0
         # Random AI timer
         self.initial_time = random.randint(100, 200)
         self.timer = self.initial_time
+        self.initial_color = self.to_move
         # Move log
         self.move_log = []
 
@@ -61,6 +62,9 @@ class Board:
         if self.flipped:
             return 7 - r, 7 - c
         return r, c
+
+    def get_opposite_color(self):
+        return "black" if self.initial_color == "white" else "white"
 
     def toggle_rotation(self):
         if self.flipped:
@@ -144,6 +148,9 @@ class Board:
     def make_random_ai_move(self, color):
         if settings.is_promoting():
             return
+        if self.to_move != color:
+            settings.ai_thinking = False
+            return
         moves = self.all_legal_moves(color)
         if len(moves) == 0:
             return
@@ -152,8 +159,9 @@ class Board:
                 src, target = random.choice(moves)
                 self.move_piece(src, target)
                 self.timer = random.randint(100, 200)
+                settings.ai_thinking = False
             else:
-                self.timer -= 3
+                self.timer -= 2
         except ValueError as e:
             self.timer = self.initial_time
             print(f"Value error: {e}")
@@ -302,6 +310,13 @@ class Board:
     def undo_move(self):
         if settings.animating:
             return
+        if settings.ai_playing:
+            self.undo_queue = 2 if self.to_move != self.get_opposite_color() else 1
+        else:
+            self.undo_queue = 1
+
+
+    def undo_two_players(self):
         if len(self.move_log) == 0:
             self.last_move = None
             return
@@ -314,8 +329,6 @@ class Board:
         if self.last_move.castling:
             # TODO: implement castling undo
             pass
-
-
 
 
 

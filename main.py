@@ -34,8 +34,8 @@ class Game:
             ]
         )
         # Binding widgets
-        settings.ai_playing.bind(self.two_players_group.set_visible)
-        settings.ai_playing.bind(self.ai_group.set_visible, invert=True)
+        settings.ai_playing.bind(self.two_players_group.set_visible, invert=True)
+        settings.ai_playing.bind(self.ai_group.set_visible)
 
         # The widgets that will be displayed
         self.widgets = {
@@ -51,7 +51,7 @@ class Game:
                        (100, 149, 237), (30, 60, 100),
                        "Next", lambda a="main": settings.switch_scene(a)),
                 CheckBox(settings.get_window_width() // 2 - 75, 150, 50, 25, False,
-                "Two Players? (If not, play against computer)", on_toggle=settings.ai_playing.set),
+                "Computer? (If not, two players)", on_toggle=settings.ai_playing.set),
                 self.two_players_group,
                 self.ai_group
             ],
@@ -71,6 +71,31 @@ class Game:
         ]
         self.dt = self.clock.tick(settings.fps)
 
+    def select_piece_event(self, clicked: tuple[int, int]) -> None:
+        if self.board.undo_queue > 0:
+            return
+        piece = self.board.get_piece(clicked)
+        if piece and piece.color == self.board.to_move:
+            self.selected = clicked
+            for p in self.board.all_pieces(None):
+                p.reset_state()
+            self.valid_moves = self.board.legal_moves_for_piece(clicked)
+        else:
+            if hasattr(self, "selected") and clicked in getattr(self, "valid_moves",
+                                                                []) and not settings.is_promoting():
+                settings.start_move_animation(self.board, self.selected, clicked, True)
+
+            self.selected = None
+            self.valid_moves = []
+            for p in self.board.all_pieces(None):
+                p.reset_state()
+
+    def handle_undo_queues(self):
+        if self.board.undo_queue > 0 and not settings.animating:
+            self.board.undo_two_players()
+            self.board.undo_queue -= 1
+            settings.ai_thinking = False
+
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.QUIT:
             self.running = False
@@ -87,21 +112,7 @@ class Game:
                 row, col = my // square, mx // square
                 row, col = self.board.board_to_screen(row, col)
                 clicked = (row, col)
-                piece = self.board.get_piece(clicked)
-                if piece and piece.color == self.board.to_move:
-                    self.selected = clicked
-                    for p in self.board.all_pieces(None):
-                        p.reset_state()
-                    self.valid_moves = self.board.legal_moves_for_piece(clicked)
-                else:
-                    if hasattr(self, "selected") and clicked in getattr(self, "valid_moves",
-                                                                        []) and not settings.is_promoting():
-                        settings.start_move_animation(self.board, self.selected, clicked, True)
-
-                    self.selected = None
-                    self.valid_moves = []
-                    for p in self.board.all_pieces(None):
-                        p.reset_state()
+                self.select_piece_event(clicked)
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
@@ -160,6 +171,11 @@ class Game:
         self.board.grid[r][c] = new_piece
         settings.reset_promotion_state()
         self.board.update_attack_maps()
+        # If two players, rotate the board
+        if not settings.ai_playing.value:
+            self.board.toggle_rotation()
+        else:
+            self.board.make_random_ai_move(color)
 
     # Draw widget helper
     def draw_widget(self, scene: str):
@@ -215,6 +231,18 @@ class Game:
                     settings.promoting_pawn_pos = clicked
                     settings.promotion_color = self.board.get_piece(clicked).color
                     self.update_promotion_buttons()
+                else:
+                    # If two players, rotate board
+                    if not settings.ai_playing.value:
+                        self.board.toggle_rotation()
+                    else:
+                        settings.ai_thinking = True
+
+        # AI thinking phase before making a move
+        if settings.ai_thinking and settings.ai_playing.value:
+            self.board.make_random_ai_move(self.board.get_opposite_color())
+        # handle undo queues
+        self.handle_undo_queues()
         # draw pieces
         for piece in self.board.all_pieces(None):
             if settings.animating and piece == settings.anim_piece:
