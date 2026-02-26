@@ -334,7 +334,7 @@ class Board:
     def undo_move(self):
         if settings.animating:
             return
-        if settings.ai_playing:
+        if settings.ai_playing.value:
             self.undo_queue = 2 if self.to_move != self.get_opposite_color() else 1
         else:
             self.undo_queue = 1
@@ -346,7 +346,6 @@ class Board:
             return
         self.last_move = self.move_log.pop()
         self.en_passant_target = None
-        # self.move_piece(move.piece.pos, (move.src[0], move.src[1]), False)
 
         settings.start_move_animation(self, self.last_move.dst, (self.last_move.src[0], self.last_move.src[1]), False)
 
